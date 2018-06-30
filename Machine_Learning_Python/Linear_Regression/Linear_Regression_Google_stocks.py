@@ -7,6 +7,11 @@ import sklearn.preprocessing
 import math, quandl
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import style
+from datetime import datetime
+## DEFINING THE STYLE OF THE PLOTS
+style.use('ggplot')
 ## GETING THE DATE SET FORM QUANDL
 df = quandl.get('WIKI/GOOGL')
 ## PREVIEWING THE DATA
@@ -32,18 +37,40 @@ pct_data = 0.01  ##GIVE HOW MUCH OF THE DATASET WE ARE TRYING TO PREDICT
 forecast_out = int(math.ceil(pct_data*len(df)))
 ## ADD THE LABEL TO THE DATAFRAME
 df['Label'] = df[forecast_col].shift(-forecast_out)  ##JUST THE COLLUMS 10 DAYS ON THE FUTURE
-df.dropna(inplace = `True`)
 ## PREVIEWING THE DATA
 #print(df.head())
 ## DEFINING X AND y FOR OUR HYPOTHESIS
 X = np.array(df.drop(['Label'], 1))
-y = np.array(df['Label'])
 ## SCALING OUR FEATURES
 X = preprocessing.scale(X)
+## DEFINING THE DATA FRO THE FORECAST
+X_lately = X[-forecast_out:]  ##DATA TO FORECAST
+X = X[:-forecast_out]
 ## DEVIDING OUR DATA INTO TRAINING AND DATA SET...TESTE SIZE IN %
+df.dropna(inplace = `True`)
+y = np.array(df['Label'])
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2)
 ## DEFINING OUR LINEAR REGRESSION HYPOTHESIS
 hypo = linear_model.LinearRegression()
 hypo.fit(X_train, y_train)
 accuracy = hypo.score(X_test, y_test)
-print'THIS ALGORITHM PREDICTS THE OUTPUT WITH A ACCURACY OF {}%'.format(accuracy*100)
+##print'THIS ALGORITHM PREDICTS THE OUTPUT WITH A ACCURACY OF {}%'.format(accuracy*100)
+## PREDICTION THE NEXT PRICE OF THE STOCKS
+y_predict = hypo.predict(X_lately)
+#################################################################################################
+## PREPARING THE DATA SET TO BE PLOT
+df['Forecast'] = np.nan
+last_date = df.iloc[-1].name
+last_unix = last_date.to_datetime()
+last_unix = time.mktime(last_unix.time_tuple())
+one_day_sec = 86400
+next_unix = last_unix + one_day_sec
+
+for i in y_predict:
+    next_date = datetime.datetime.fromtimestemp(next_unix)
+    next_unix += one_day_sec
+    df.loc[next_date] = [np.nan for _ in range(len(df.columns)-1)] + [i]
+##PLOTING THE DATA AND THE PREDICTION
+df['Adj. Close'].plot()
+df['Forecast'].plot()
+plot.show()
