@@ -1,19 +1,20 @@
 ################################### LINEAR REGRESSION ###########################################
 ## GUILHERME CARVALHO PEREIRA
-## IMPORTING LIBARIES 
+## IMPORTING LIBARIES
 from sklearn.model_selection import cross_val_predict, train_test_split
 from sklearn import linear_model
 import sklearn.preprocessing
-import math, quandl
+import math,time, quandl
+from datetime import datetime as dt
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import style
-from datetime import datetime
+
 ## DEFINING THE STYLE OF THE PLOTS
 style.use('ggplot')
 ## GETING THE DATE SET FORM QUANDL
-quandl.ApiConfig.api_key = 'G9SiyZ49oi4T_KYraTQs'
+quandl.ApiConfig.api_key = 'YOUR KEY'
 df = quandl.get('WIKI/GOOGL', index_col='Date', parse_dates=True)
 ## PREVIEWING THE DATA
 #print(df_raw.head())
@@ -43,7 +44,7 @@ df['Label'] = df[forecast_col].shift(-forecast_out)  ##JUST THE COLLUMS 10 DAYS 
 ## DEFINING X AND y FOR OUR HYPOTHESIS
 X = np.array(df.drop(['Label'], 1))
 ## SCALING OUR FEATURES
-X = preprocessing.scale(X)
+X = sklearn.preprocessing.scale(X)
 ## DEFINING THE DATA FRO THE FORECAST
 X_lately = X[-forecast_out:]  ##DATA TO FORECAST
 X = X[:-forecast_out]
@@ -69,7 +70,7 @@ next_unix = last_unix + one_day
 
 for i in y_predict:
     next_date = dt.fromtimestamp(next_unix)
-    datetime.timedelta(days=1)
+    next_unix += one_day
     df.loc[next_date] = [np.nan for _ in range(len(df.columns)-1)] + [i]
 ##PLOTING THE DATA AND THE PREDICTION
 df['Adj. Close'].plot()
