@@ -13,7 +13,8 @@ from datetime import datetime
 ## DEFINING THE STYLE OF THE PLOTS
 style.use('ggplot')
 ## GETING THE DATE SET FORM QUANDL
-df = quandl.get('WIKI/GOOGL')
+quandl.ApiConfig.api_key = 'G9SiyZ49oi4T_KYraTQs'
+df = quandl.get('WIKI/GOOGL', index_col='Date', parse_dates=True)
 ## PREVIEWING THE DATA
 #print(df_raw.head())
 ## GETING THE FEATURES MORE MEANINGFUL
@@ -60,17 +61,20 @@ y_predict = hypo.predict(X_lately)
 #################################################################################################
 ## PREPARING THE DATA SET TO BE PLOT
 df['Forecast'] = np.nan
+df.index
 last_date = df.iloc[-1].name
-last_unix = last_date.to_datetime()
-last_unix = time.mktime(last_unix.time_tuple())
-one_day_sec = 86400
-next_unix = last_unix + one_day_sec
+last_unix = time.mktime(time.strptime(str(last_date), "%Y-%m-%d %H:%M:%S")) # .timestamp()
+one_day = 86400
+next_unix = last_unix + one_day
 
 for i in y_predict:
-    next_date = datetime.datetime.fromtimestemp(next_unix)
-    next_unix += one_day_sec
+    next_date = dt.fromtimestamp(next_unix)
+    datetime.timedelta(days=1)
     df.loc[next_date] = [np.nan for _ in range(len(df.columns)-1)] + [i]
 ##PLOTING THE DATA AND THE PREDICTION
 df['Adj. Close'].plot()
 df['Forecast'].plot()
-plot.show()
+plt.legend(loc=4)
+plt.xlabel('Date')
+plt.ylabel('Price')
+plt.show()
