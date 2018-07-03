@@ -1,0 +1,69 @@
+########################## LINEAR REGRESSION FUNCTION FROM SCRATCH ###########################
+from statistics import mean
+import numpy as np
+import matplotlib.pyplot as plt
+
+''' THIS FUNCTION CALCULATES THE BEST FIT LINE TO A REGRESSION MODEL
+    THE FUNCTION TAKES TWO PARAMETES:
+    X -> DATA TO BE FIT AS THE x AXIS : DATA TYPE => numpy.array
+    y -> DATA TO BE FIT AS THE y AXIS : DATA TYPE => numpy.array
+'''
+def best_fit_line(X,y):
+    ## COMPUTATING m
+    m = (((mean(X)*mean(y)) - mean(X*y))/
+        ((mean(X)**2)-mean(X**2)))
+    b = mean(y) - m*mean(X)
+    ## RETURNING THE SLOPE AND INTERCEPT
+    return m, b
+
+
+''' THIS FUNCTION CALCULATES THE SQUARED ERROR TO A REGRESSION MODEL
+    THE FUNCTION TAKES TWO PARAMETES:
+    y -> DATA TO BE FIT AS THE y AXIS : DATA TYPE => numpy.array
+    regression_model -> DATA PREDICT USING THE best_fit_line function : DATA TYPE => numpy.array
+'''
+def squared_error(y, regression_modele):
+    return sum((regression_model - y)*(regression_model - y))
+
+''' THIS FUNCTION CALCULATES THE COEFICIENT OF DETERMINATION TO A REGRESSION MODEL
+    THIS COEFICIENT TELLS US HOW "GOOD" IS THE REGRESSION MODEL...GOOD MODEL OR NOT
+    A GOOD COEFICENT VALUE IS THE CLOSE TO 1 AS POSSIBLE
+    THE FUNCTION TAKES TWO PARAMETES:
+    y -> DATA TO BE FIT AS THE y AXIS : DATA TYPE => numpy.array
+    regression_model -> DATA PREDICT USING THE best_fit_line function : DATA TYPE => numpy.array
+'''
+def coef_of_determination(y, regression_model):
+    y_mean = [mean(y_line) for y_line in y]
+    
+    squared_error_regression = squared_error(y, regression_model)
+    squared_error_mean = squared_error(y, y_mean)
+    
+    print y_mean, squared_error_regression, squared_error_mean
+    
+    return (1-(squared_error_regression/squared_error_mean))
+
+## TESTING DATA
+
+X = np.array([1,2,3,4,5,6], dtype=np.float64)
+y = np.array([5,4,6,5,6,7], dtype=np.float64)
+
+## CALLING THE FUNCTION
+
+[m,b] = best_fit_line(X,y)
+
+print m, b
+
+## LINE FIT
+
+regression_model = [(m*x)+b for x in X]
+
+## TESTING HOW GOOD THE LINE FITS THIS DATA
+
+r_squared = coef_of_determination(y, regression_model)
+print r_squared
+
+## PLOTING THE DATA
+plt.scatter(X,y)
+plt.plot(X,regression_model)
+plt.show()
+
