@@ -1,12 +1,44 @@
 ########################## LINEAR REGRESSION FUNCTION FROM SCRATCH ###########################
 from statistics import mean
 import numpy as np
+import random 
 import matplotlib.pyplot as plt
+from matplotlib import style
+## DEFINING THE STYLE OF THE PLOTS
+style.use('ggplot')
+
+''' THIS FUNCTION CREATE A SUDO RADOM DATASET 
+    THE FUNCTION TAKES FOUR PARAMETERS:
+    size -> THE NUMBER OF DATA POINTS TO BE GENERATE
+    variance -> THE VARIANCE OF THE DATESET
+    step -> THE INCREMENET OF THE DATASET. BY DEFAULT step=2
+    correlation ->THE THE DATA POINTS HAVE ANY CORRELATION. BY DEFAULT correlation = False
+    
+    THE FUNCTION RETURNS TWO NUMPY ARRAYS, X AND Y, dtype=np.float64
+'''
+def create_dateset(size, variance, step=2, correlation=False):
+    val = 1
+    y = []
+    for i in range(size):
+        y_temp = val+random.randrange(-variance,variance)
+        y.append(y_temp)
+        
+        if correlation and correlation == 'pos':
+            val+=step
+            
+        elif correlation and correlation == 'neg':
+            val-=step
+            
+    X = [i for i in range(size)]
+    
+    return np.array(X, dtype = np.float64), np.array(y, dtype = np.float64)
 
 ''' THIS FUNCTION CALCULATES THE BEST FIT LINE TO A REGRESSION MODEL
     THE FUNCTION TAKES TWO PARAMETES:
     X -> DATA TO BE FIT AS THE x AXIS : DATA TYPE => numpy.array
     y -> DATA TO BE FIT AS THE y AXIS : DATA TYPE => numpy.array
+    
+    THE FUNCTION RETURNS TWO FLOAT NUMBERS, m AND b
 '''
 def best_fit_line(X,y):
     ## COMPUTATING m
@@ -21,9 +53,11 @@ def best_fit_line(X,y):
     THE FUNCTION TAKES TWO PARAMETES:
     y -> DATA TO BE FIT AS THE y AXIS : DATA TYPE => numpy.array
     regression_model -> DATA PREDICT USING THE best_fit_line function : DATA TYPE => numpy.array
+    
+    THE FUNCTION RETURN ONE FLOAT NUMBER
 '''
-def squared_error(y, regression_modele):
-    return sum((regression_model - y)*(regression_model - y))
+def squared_error(y,regression_model):
+    return sum((regression_model - y) * (regression_model - y))
 
 ''' THIS FUNCTION CALCULATES THE COEFICIENT OF DETERMINATION TO A REGRESSION MODEL
     THIS COEFICIENT TELLS US HOW "GOOD" IS THE REGRESSION MODEL...GOOD MODEL OR NOT
@@ -31,21 +65,23 @@ def squared_error(y, regression_modele):
     THE FUNCTION TAKES TWO PARAMETES:
     y -> DATA TO BE FIT AS THE y AXIS : DATA TYPE => numpy.array
     regression_model -> DATA PREDICT USING THE best_fit_line function : DATA TYPE => numpy.array
+    
+    THE FUNCTION RETURN ONE FLOAT NUMBER
 '''
 def coef_of_determination(y, regression_model):
-    y_mean = [mean(y_line) for y_line in y]
+    y_mean = [mean(y) for y_line in y]
     
-    squared_error_regression = squared_error(y, regression_model)
+    squared_error_regression = squared_error(y,regression_model)
     squared_error_mean = squared_error(y, y_mean)
     
-    print y_mean, squared_error_regression, squared_error_mean
-    
-    return (1-(squared_error_regression/squared_error_mean))
+    #print y, regression_model, y_mean
+    print squared_error_regression, squared_error_mean
+    return 1-(squared_error_regression/squared_error_mean)
 
 ## TESTING DATA
 
-X = np.array([1,2,3,4,5,6], dtype=np.float64)
-y = np.array([5,4,6,5,6,7], dtype=np.float64)
+X, y = create_dateset(5000,1000,500,correlation='pos') 
+
 
 ## CALLING THE FUNCTION
 
@@ -64,6 +100,7 @@ print r_squared
 
 ## PLOTING THE DATA
 plt.scatter(X,y)
-plt.plot(X,regression_model)
+plt.plot(X,regression_model , label='LINEAR_REGRESSION', color='b')
+plt.xlabel('X')
+plt.ylabel('Y')
 plt.show()
-
