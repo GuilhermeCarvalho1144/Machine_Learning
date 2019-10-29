@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/MNIST.iml" filepath="$PROJECT_DIR$/.idea/MNIST.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Movie_IMDB_dataset/.idea/Movie_IMDB_dataset.iml" filepath="$PROJECT_DIR$/../Movie_IMDB_dataset/.idea/Movie_IMDB_dataset.iml" />
     </modules>
   </component>
 </project>
