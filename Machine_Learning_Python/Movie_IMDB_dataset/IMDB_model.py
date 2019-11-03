@@ -43,10 +43,9 @@ def decode_review(text):
     ##DEBUG
     #print(decode_review(train_data[0]))
 
-
+model = keras.Sequential()
 ##Defing the model with keras
 def modelKeras(train_data, train_labels, test_data, test_labels):
-    model = keras.Sequential()
     model.add(keras.layers.Embedding(88000, 16))
     model.add(keras.layers.GlobalAveragePooling1D())
     model.add(keras.layers.Dense(16, activation="relu"))
