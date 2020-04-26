@@ -1,0 +1,1 @@
+This is a exemple fo a RNN implement base on https://www.youtube.com/watch?v=yWkpRdpOiPY&list=PLQVvvaa0QuDfhTox0AjmQ6tvTgMBZBEXN&index=11
