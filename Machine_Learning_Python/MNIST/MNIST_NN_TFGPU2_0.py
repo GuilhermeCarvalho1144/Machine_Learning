@@ -3,7 +3,7 @@ import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 import matplotlib.pyplot as plt
-
+IMG_SIZE = 28
 ##Geting the dataset
 data = keras.datasets.fashion_mnist
 
@@ -23,21 +23,44 @@ class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
 
 ##Normalazing the dataset
 train_images = train_images/255.0
+train_images = np.array(train_images).reshape(-1, IMG_SIZE, IMG_SIZE, 1)
 test_images = test_images/255.0
-
+test_images_plot = test_images
+test_images = np.array(test_images).reshape(-1, IMG_SIZE, IMG_SIZE, 1)
+print(train_images.shape)
 
 ##Creating a Model with Keras
+'''
 model = keras.Sequential([
     keras.layers.Flatten(input_shape=(28, 28)),#Input layer with the size of the images
     keras.layers.Dense(128, activation="relu"),#Hiden layer 17% of the inout layer
     keras.layers.Dense(10, activation="softmax")#Output layer has a probabilistc activation 0 -> 1
 ])
+'''
+model = tf.keras.Sequential()
+model.add(tf.keras.layers.Conv2D(filters=32, kernel_size=3, padding='same', activation='relu',input_shape=train_images.shape[1:]))
+model.add(tf.keras.layers.MaxPool2D(pool_size=2, strides=2, padding='valid'))
+model.add(tf.keras.layers.Dropout(0.2))
+model.add(tf.keras.layers.Conv2D(filters=32, kernel_size=3, padding='same', activation='relu'))
+model.add(tf.keras.layers.MaxPool2D(pool_size=2, strides=2, padding='valid'))
+model.add(tf.keras.layers.Dropout(0.2))
+model.add(tf.keras.layers.Conv2D(filters=64, kernel_size=3, padding='same', activation='relu'))
+model.add(tf.keras.layers.MaxPool2D(pool_size=2, strides=2, padding='valid'))
+model.add(tf.keras.layers.Dropout(0.2))
+model.add(tf.keras.layers.Conv2D(filters=64, kernel_size=3, padding='same', activation='relu'))
+model.add(tf.keras.layers.MaxPool2D(pool_size=2, strides=2, padding='valid'))
+model.add(tf.keras.layers.Dropout(0.2))
+model.add(tf.keras.layers.Flatten())
+model.add(tf.keras.layers.Dense(units=128, activation='relu'))
+model.add(tf.keras.layers.Dropout(0.2))
+model.add(tf.keras.layers.Dense(units=10, activation='softmax'))
+model.summary()
 
 #Compiling the model using Keras
 model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 
 #Train the model using keras
-model.fit(train_images, train_labels, epochs=10)
+model.fit(train_images, train_labels, epochs=20)
 
 #Print te accuracy of the model
 test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=2)
@@ -94,7 +117,7 @@ def plot_value_array(i, predictions_array, true_label):
 plt.figure(figsize=(2*2*num_cols, 2*num_rows))
 for i in range(num_images):
     plt.subplot(num_rows, 2*num_cols, 2*i+1)
-    plot_image(i, predictions, test_labels, test_images)
+    plot_image(i, predictions, test_labels, test_images_plot)
     plt.subplot(num_rows, num_cols*2, 2*i+2)
     plot_value_array(i, predictions, test_labels)
 
