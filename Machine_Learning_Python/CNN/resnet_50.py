@@ -84,7 +84,7 @@ def run(X_train, y_train, X_test, y_test):
     model.summary()
     #fine_adam = Adam(lr=0.00005, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
-    batch_size = 64  # test with 64, 128, 256
+    batch_size = 64# test with 64, 128, 256
     logdir = os.path.join("logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
     tensorboard_callback = tf.keras.callbacks.TensorBoard(logdir, histogram_freq=1)
     resnet_train = model.fit(X_train, y_train,
