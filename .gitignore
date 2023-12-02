@@ -1,0 +1,11 @@
+*.ideia*
+*__*
+*data*
+*audio*
+*log*
+*.txt
+*.csv
+*.pkl
+*.gif
+*.wav
+*run*
