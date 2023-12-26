@@ -2,8 +2,6 @@ import numpy as np
 import torch
 
 def intersection_over_union(boxes_preds, boxes_labels, box_format='corners'):
-    import pdb
-    pdb.set_trace()
 
     print(f'using format {box_format}')
     if box_format == 'midpoint':
@@ -50,7 +48,7 @@ def intersection_over_union(boxes_preds, boxes_labels, box_format='corners'):
 def non_max_supression(bboxes, iou_threshold, threshold, box_format="corners"):
     assert type(bboxes) == list
 
-    bboxes = [box for box in bboxes if box[1] . threshold]
+    bboxes = [box for box in bboxes if box[1] > threshold]
     bboxes = sorted(bboxes, key=lambda x: x[1], reverse=True)
     bboxes_after_nms = []
 
@@ -60,8 +58,8 @@ def non_max_supression(bboxes, iou_threshold, threshold, box_format="corners"):
             box for box in bboxes
             if box[0] != chosen_box[0]
             or intersection_over_union(
-                np.array(chosen_box[2:]),
-                np.array(box[2:]),
+                torch.tensor(chosen_box[2:]),
+                torch.tensor(box[2:]),
                 box_format=box_format
             ) < iou_threshold
         ]
@@ -77,5 +75,5 @@ if __name__ == "__main__":
     t2_box2 = torch.tensor([4, 4, 7, 8])
     test1 = intersection_over_union(t1_box1, t1_box2, "midpoint") 
     test2 = intersection_over_union(t2_box1, t2_box2, "corners") 
-    assert torch.tensor(1/7)== test1
-    assert torch.tensor(4/24)== test2
+    assert torch.tensor([1/7])-test1 < 0.001
+    assert torch.tensor([4/24])-test2
