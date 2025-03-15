@@ -10,3 +10,12 @@
 *.wav
 *run*
 *checkpoint*
+*.jpg
+*.png
+*.pth
+*.keras
+**.ipynb
+*.zip
+*.onnx
+*.pt
+**.npy
