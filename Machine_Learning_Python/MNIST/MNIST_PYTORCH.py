@@ -19,9 +19,10 @@ device  = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 input_size = 28*28
 hidden_size = 100
 num_classes = 10
-n_epochs = 1
-batch_size = 1024 
+n_epochs = 20
+batch_size = 4096
 lr = 0.001
+PATH = 'best_models.pth'
 
 
 class MLP(nn.Module):
@@ -58,76 +59,89 @@ class CNN(nn.Module):
         return x
 
 # dataset
-breakpoint()
-train_dataset = torchvision.datasets.MNIST(root='./data', train=True, transform=transforms.ToTensor(), download=True)
-test_dataset= torchvision.datasets.MNIST(root='./data', train=False, transform=transforms.ToTensor())
+def get_dataloaders():
+    train_dataset = torchvision.datasets.MNIST(root='./data', train=True, transform=transforms.ToTensor(), download=True)
+    test_dataset= torchvision.datasets.MNIST(root='./data', train=False, transform=transforms.ToTensor())
 
-train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size,shuffle=True)
-test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size)
+    train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size,shuffle=True)
+    test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size)
 
-examples = iter(train_loader)
-samples, labels = next(examples) 
+    # examples = iter(train_loader)
+    # samples, labels = next(examples) 
+    return train_loader, test_loader
 
 
-#model = MLP(input_size, hidden_size, num_classes)
-model = CNN(num_classes)
-model.to(device)
-#writer.add_graph(model, samples)
+def train_fn(model, train_loader, criterion, opt, ):
+    mean_loss = 0.0
+    epoch_acc = 0
 
-#loss and optmizer
-criterion = nn.CrossEntropyLoss()
-opt = torch.optim.Adam(model.parameters(), lr=lr)
+    #traning loop
+    for epoch in range(n_epochs):
+        for i, (img, labels) in enumerate(train_loader):
+            # breakpoint()       
+            #print('IMAGE shape:', img.shape)
+            #print('LABELS shape', labels.shape)
 
-mean_loss = 0.0
-epoch_acc = 0
+            #reshape img
+            img = img.to(device)
+            labels = labels.to(device)
 
-#traning loop
-for epoch in range(n_epochs):
-    for i, (img, labels) in enumerate(train_loader):
-        # breakpoint()       
-        #print('IMAGE shape:', img.shape)
-        #print('LABELS shape', labels.shape)
+            #print('IMAGE shape:', img.shape)
+            #foward step
+            y_pred = model(img)
+            loss = criterion(y_pred, labels)
+            
+            #backpass
+            opt.zero_grad()
+            loss.backward()
+            opt.step()
+            
+            mean_loss += loss.item()
+            _, pred = torch.max(y_pred, 1)
+            epoch_acc += (pred == labels).sum().item()
+            #Prints
+            if (i+1) % int(len(train_loader)/10)==0:
+                print(f'epoch: {epoch+1}/{n_epochs}, step {i+1}/{len(train_loader)}, loss: {loss.item():.4f}')
+                writer.add_scalar('training loss', mean_loss/100, epoch*len(train_loader)+i)
+                writer.add_scalar('accuracy', epoch_acc/100, epoch*len(train_loader)+i)
+                mean_loss = 0.0
+                epoch_acc = 0
+    torch.save(model, PATH)
 
-        #reshape img
-        img = img.to(device)
-        labels = labels.to(device)
+def train():
+    #model = MLP(input_size, hidden_size, num_classes)
+    model = CNN(num_classes)
+    model.to(device)
 
-        #print('IMAGE shape:', img.shape)
-        #foward step
-        y_pred = model(img)
-        loss = criterion(y_pred, labels)
-        
-        #backpass
-        opt.zero_grad()
-        loss.backward()
-        opt.step()
-        
-        mean_loss += loss.item()
-        _, pred = torch.max(y_pred, 1)
-        epoch_acc += (pred == labels).sum().item()
-        #Prints
-        if (i+1) % int(len(train_loader)/10)==0:
-            # breakpoint()
-            print(f'epoch: {epoch+1}/{n_epochs}, step {i+1}/{len(train_loader)}, loss: {loss.item():.4f}')
-            writer.add_scalar('training loss', mean_loss/100, epoch*len(train_loader)+i)
-            writer.add_scalar('accuracy', epoch_acc/100, epoch*len(train_loader)+i)
-            mean_loss = 0.0
-            epoch_acc = 0
+    #loss and optmizer
+    criterion = nn.CrossEntropyLoss()
+    opt = torch.optim.Adam(model.parameters(), lr=lr)
+    train_loader, _ = get_dataloaders()
+    train_fn(model, train_loader, criterion, opt)
+
+
 #test
-with torch.no_grad():
-    n_correct = 0 
-    n_samples = 0
-    for img, y_true in test_loader:
-        img = img.to(device)
-        y_true = y_true.to(device)
-        model.to(device)
-        y_pred = model(img)
+def test():
+    model = torch.load(PATH).to(device)
+    _, test_loader = get_dataloaders()
+    with torch.no_grad():
+        n_correct = 0 
+        n_samples = 0
+        for img, y_true in test_loader:
+            img = img.to(device)
+            y_true = y_true.to(device)
+            model.to(device)
+            y_pred = model(img)
 
-        #value, index
-        _, pred = torch.max(y_pred,1)
-        n_samples += y_true.shape[0]
-        n_correct += (pred == y_true).sum().item()
-        
-    acc = 100.0*n_correct/n_samples
+            #value, index
+            _, pred = torch.max(y_pred,1)
+            n_samples += y_true.shape[0]
+            n_correct += (pred == y_true).sum().item()
+            
+        acc = 100.0*n_correct/n_samples
 
-print(f'accuracy: {acc}%')
+    print(f'accuracy: {acc}%')
+
+if __name__ == "__main__":
+    train()
+    test()
