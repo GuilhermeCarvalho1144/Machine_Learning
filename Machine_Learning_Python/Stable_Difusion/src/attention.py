@@ -4,7 +4,7 @@ from torch.nn import functional as F
 import math
 
 
-class SelfAttetion(nn.Module):
+class SelfAttention(nn.Module):
     def __init__(
         self, n_heads: int, d_embed: int, in_proj_bias=True, out_proj_bias=True
     ) -> None:
