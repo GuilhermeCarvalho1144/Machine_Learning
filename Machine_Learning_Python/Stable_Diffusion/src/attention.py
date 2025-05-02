@@ -87,7 +87,7 @@ class CrossAttention(nn.Module):
         weigths /= math.sqrt(self.__d_head)
         weigths = F.softmax(weigths, dim=-1)
         output = weigths @ v
-        output = output.transpose(1, 2)
+        output = output.transpose(1, 2).contiguous()
         output = output.reshape(input_shape)
         output = self.out_proj(output)
         return output
