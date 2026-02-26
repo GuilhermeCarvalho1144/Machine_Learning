@@ -67,7 +67,7 @@ def generate(
         # Do Classifier Free Guidance
 
         # Convert the prompt ussing the tokenizer
-        cond_tokens = tokenizer.bath_encode_plus(
+        cond_tokens = tokenizer.batch_encode_plus(
             [prompt], padding="max_length", max_length=MAX_LEN
         ).input_ids
         # (batch_size, seq_len)
@@ -76,7 +76,7 @@ def generate(
         cond_context = clip(cond_tokens)
         if do_cfg:
             # doing the same for the uncund_prompt
-            uncond_tokens = tokenizer.bath_encode_plus(
+            uncond_tokens = tokenizer.batch_encode_plus(
                 [uncund_prompt], padding="max_length", max_length=MAX_LEN
             ).input_ids
             uncond_tokens = torch.tensor(
@@ -88,7 +88,7 @@ def generate(
             context = torch.cat([cond_context, uncond_context])
         else:
             # (1, batch_size, seq_len, Dims)
-            context = cond_context
+            context = cond_tokens
 
         to_idel(clip)
 
